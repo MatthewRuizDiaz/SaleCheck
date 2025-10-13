@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>frontend</title>
+  </head>
+  <body>
+
+    <div id="app" class="w-[420px] h-[500px] bg-neutral-700" x-data="product_list()">
+
+
+      <div class="flex flex-col">
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="flex flex-row">
+          <input type="text" class="flex-1 text-center mt-2 ml-3 mr-3 text-white text-sm placeholder-white " placeholder="Paste your Amazon Link Here">
+          <button title="Submit your link to SaleCheck." class="bg-gray-400 ml-3 mr-3 mt-2 px-2 text-white rounded">Add</button>
+        </div>
+
+
+        <div id="header_grid" class="grid grid-cols-4 mt-2">
+          <div id="Product_Name">
+            <p class="text-center text-white">Name</p>
+            
+          </div>
+          <div id="Product_Current_Price">
+            <p class="text-center text-white">Sale</p>
+
+          </div>
+          <div id="Product_Standard_Price">
+            <p class="text-center text-white">Reg. Price</p>
+
+          </div>
+          <div id="Delete">
+            <p class="text-center text-white">Delete</p>
+
+          </div>
+        </div>
+
+        <div id="body_grid" class="grid grid-cols-4">
+
+        </div>
+
+
+
+
+
+
+
+      </div>
+
+
+
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
