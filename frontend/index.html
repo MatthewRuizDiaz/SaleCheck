@@ -6,28 +6,14 @@
     <title>frontend</title>
   </head>
   <body>
-
     <div id="app" class="w-[420px] h-[500px] bg-neutral-700" x-data="product_list()">
-
-
       <div class="flex flex-col">
-
-
-
-
-
-
-
-
-
-
-
-
         <div class="flex flex-row">
-          <input type="text" class="flex-1 text-center mt-2 ml-3 mr-3 text-white text-sm placeholder-white " placeholder="Paste your Amazon Link Here">
-          <button title="Submit your link to SaleCheck." class="bg-gray-400 ml-3 mr-3 mt-2 px-2 text-white rounded">Add</button>
-        </div>
+          <input type="text" x-model="newLink" class="flex-1 text-center mt-2 ml-3 mr-3 text-white text-sm placeholder-white " placeholder="Paste your Amazon Link Here">
+          <button title="Submit your link to SaleCheck." class="bg-gray-400 ml-3 mr-3 mt-2 px-2 text-white rounded" x-on:click="addNewProduct()">Add</button>
 
+        </div>
+        <p x-show="errorMessage" x-text="errorMessage" class="text-center text-red-400 text-sm mt-1"></p>
 
         <div id="header_grid" class="grid grid-cols-4 mt-2">
           <div id="Product_Name">
@@ -40,30 +26,45 @@
           </div>
           <div id="Product_Standard_Price">
             <p class="text-center text-white">Reg. Price</p>
-
           </div>
           <div id="Delete">
             <p class="text-center text-white">Delete</p>
-
           </div>
         </div>
-
         <div id="body_grid" class="grid grid-cols-4">
-
+          <template x-for="product in products" :key="product.product_asin">
+            <div class="contents">
+              <div>
+                <p
+                  class="text-center text-white"
+                  x-text="product.product_title"
+                ></p>
+              </div>
+              <div>
+                <p
+                  class="text-center text-white"
+                  x-text="product.product_price"
+                ></p>
+              </div>
+              <div>
+                <p
+                  class="text-center text-white"
+                  x-text="product.product_original_price"
+                ></p>
+              </div>
+              <div>
+                <p
+                  class="text-center text-white"
+                  x-on:click="remove_product(product)"
+                >
+                  Delete
+                </p>
+              </div>
+            </div>
+          </template>
         </div>
-
-
-
-
-
-
-
       </div>
-
-
-
     </div>
-
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

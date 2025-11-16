@@ -48,6 +48,10 @@ function parseASIN(url) {
     return ASIN
 }
 
+function cleanTitle (product_title) {
+    return product_title.split(/\s+/).slice(0, 5).join(" ")
+}
+
 app.get('/', (req, res) => {
     res.json({message: 'API is live'})
     console.log('API is live')
@@ -73,6 +77,7 @@ app.get('/products/by_url', async (req, res) => {
             'product_title': response.data.data.product_title,
             'product_price': response.data.data.product_price,
             'product_original_price': response.data.data.product_original_price,
+            'product_asin': asin,
         }
         res.json(filter_res)
     }

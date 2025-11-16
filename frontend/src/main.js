@@ -1,56 +1,120 @@
 import './style.css'
-import Alpine from 'alpinejs'
+import Alpine from '@alpinejs/csp'
 
-Alpine.data('product_list', () => ({
-    products: 
-    [
-        {
-            "product_title": "Ninja Luxe Café 3-in-1 Espresso, Drip Coffee and Cold Brew Machine | Integrated Grinder, Frother & Tamper | Stainless Steel | ES601",
-            "product_price": "498.99",
-            "product_original_price": "599.99"
-        },
-        {
-            "product_title": "Breville Barista Express Impress Espresso Machine with Built‑In Conical Burr Grinder | Brushed Stainless Steel | BES876BSS",
-            "product_price": "699.95",
-            "product_original_price": "799.95"
-        },
-        {
-            "product_title": "Keurig K‑Café SMART Single Serve Coffee Maker | Wi‑Fi Connected Brewer with Milk Frother | Black | K15",
-            "product_price": "179.99",
-            "product_original_price": "229.99"
-        },
-        {
-            "product_title": "De'Longhi Magnifica Evo Fully Automatic Espresso Machine | LatteCrema System | Silver | ECAM29084SB",
-            "product_price": "899.00",
-            "product_original_price": "999.95"
-        },
-        {
-            "product_title": "Cuisinart DGB‑2 Conical Burr Grind & Brew 12‑Cup Coffee Maker | Programmable | Stainless Steel",
-            "product_price": "179.00",
-            "product_original_price": "249.00"
-        }
-    ],
+// Load products directly from chrome.storage.local
+chrome.storage.local.get('products', (result) => {
+  const initialProducts = Array.isArray(result.products) 
+    ? result.products 
+    : [];
+  console.log('[main.js] Loaded products from storage:', initialProducts);
+  initializeApp(initialProducts);
+});
+
+function initializeApp(initialProducts) {
+  window.Alpine = Alpine;
+
+  Alpine.data('product_list', () => ({
+    products: [...initialProducts],
+    newLink: '',
     errorMessage: '',
-    add_product(product) 
-    {
-        if (this.products.some(p => p.product_title === product.product_title)) {
-            this.errorMessage = "This product is already in the list."
-            return
-        }
-        this.products.push(product)
-        this.errorMessage = ''
-    },
-    remove_product(product) 
-    {
-        if (!this.products.some(p => p.product_title === product.product_title)){
-            this.errorMessage = "This product is not in the list and cannot be removed."
-            return
-        }
-        this.products = this.products.filter(
-            p => p.product_title !== product.product_title
-        )
-        this.errorMessage = ''
-    },
-}))
 
-Alpine.start()
+    async addNewProduct() {
+      if (!this.newLink.trim()) {
+        this.errorMessage = 'Please paste a link.';
+        return;
+      }
+
+      try {
+        const encoded = encodeURIComponent(this.newLink.trim());
+        console.log('[addNewProduct] Fetching URL:', encoded);
+        const response = await fetch(
+          `http://localhost:3000/products/by_url?url=${encoded}`
+        );
+        console.log('[addNewProduct] Response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('[addNewProduct] Backend error:', errorText);
+          throw new Error('Backend fetch failed');
+        }
+        
+        const product = await response.json();
+        console.log('[addNewProduct] Product received:', product);
+        this.add_product(product);
+        this.newLink = '';
+        this.errorMessage = '';
+      } catch (err) {
+        console.error('[addNewProduct] Full error:', err);
+        this.errorMessage = 'Could not add product.';
+      }
+    },
+
+    add_product(product) {
+      console.log('[add_product] Attempting to add:', product);
+
+      if (!Array.isArray(this.products)) {
+        console.error('[add_product] products is not an array! Resetting.');
+        this.products = [];
+      }
+
+      if (
+        this.products.some(p => p.product_asin === product.product_asin)
+      ) {
+        this.errorMessage = 'This product is already in the list.';
+        console.warn('[add_product] Duplicate detected');
+        return;
+      }
+      
+      this.products.push(product);
+      console.log('[add_product] After push:', this.products);
+      this.saveProducts();
+      this.errorMessage = '';
+    },
+
+    remove_product(product) {
+      if (!Array.isArray(this.products)) {
+        console.error('[remove_product] products is not an array!');
+        this.products = [];
+        return;
+      }
+
+      this.products = this.products.filter(
+        p => p.product_asin !== product.product_asin
+      );
+      this.saveProducts();
+      this.errorMessage = '';
+    },
+
+    saveProducts() {
+      const toSave = Array.isArray(this.products) 
+        ? JSON.parse(JSON.stringify(this.products)) 
+        : [];
+      console.log('[saveProducts] Saving:', toSave);
+      
+      chrome.storage.local.set({ products: toSave }, () => {
+        if (chrome.runtime.lastError) {
+          console.error('[saveProducts] Error:', chrome.runtime.lastError);
+        } else {
+          console.log('[saveProducts] Successfully saved to storage');
+        }
+      });
+    },
+
+    init() {
+      chrome.storage.onChanged.addListener((changes, area) => {
+        if (area === 'local' && changes.products) {
+          const newProducts = changes.products.newValue || [];
+          const isDifferent = 
+            JSON.stringify(newProducts) !== JSON.stringify(this.products);
+
+          if (isDifferent) {
+            console.log('[popup] External storage change, updating UI...');
+            this.products = newProducts;
+          }
+        }
+      });
+    }
+  }));
+
+  Alpine.start();
+}
