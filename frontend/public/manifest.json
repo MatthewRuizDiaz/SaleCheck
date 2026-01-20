@@ -14,6 +14,7 @@
         "http://localhost:3000/*"
     ],
     "permissions": [
-        "storage"
+        "storage",
+        "tabs"
     ]
 }
