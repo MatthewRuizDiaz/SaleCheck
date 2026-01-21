@@ -2,11 +2,29 @@ const express = require('express')
 const axios = require('axios')
 require('dotenv').config()
 
+// DEBUG: Log environment check
+console.log('Environment check:', {
+  hasHost: !!process.env.RAPIDAPI_HOST,
+  hasKey: !!process.env.RAPIDAPI_KEY,
+  port: process.env.PORT || 3000
+})
+
 const app = express()
 const apiHost = process.env.RAPIDAPI_HOST
 const apiKey = process.env.RAPIDAPI_KEY
-
 const affiliateID = 'salecheck-20'
+
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-RapidAPI-Host, X-RapidAPI-Key')
+  
+  // Handle preflight OPTIONS requests immediately
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200)
+  }
+  next()
+})
 
 function makeAffiliateLink(asin, originalURL) {
     const urlParams = new URLSearchParams(originalURL.split('?')[1] || '')
@@ -16,7 +34,7 @@ function makeAffiliateLink(asin, originalURL) {
         return `https://www.amazon.com/dp/${asin}?tag=${existingTag}`
     }
 
-    return `https://www.amazon.com/dp/${asin}?tag=${affiliateID}`;
+    return `https://www.amazon.com/dp/${asin}?tag=${affiliateID}`
 }
 
 function parseASIN(url) {
@@ -136,8 +154,7 @@ function extractProductType(data) {
 }
 
 app.get('/', (req, res) => {
-    res.json({message: 'API is live'})
-    console.log('API is live')
+    res.status(200).send('OK')
 })
 
 app.get('/products', (req, res) => {
