@@ -15,16 +15,15 @@ const apiKey = process.env.RAPIDAPI_KEY
 const affiliateID = 'salecheck-20'
 
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-  res.header('Access-Control-Allow-Headers', 'Content-Type, X-RapidAPI-Host, X-RapidAPI-Key')
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, HEAD'); // Added HEAD
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-RapidAPI-Host, X-RapidAPI-Key');
   
-  // Handle preflight OPTIONS requests immediately
   if (req.method === 'OPTIONS') {
-    return res.sendStatus(200)
+    return res.status(200).end(); // Use .end() to ensure the connection closes
   }
-  next()
-})
+  next();
+});
 
 function makeAffiliateLink(asin, originalURL) {
     const urlParams = new URLSearchParams(originalURL.split('?')[1] || '')
@@ -152,11 +151,15 @@ function extractProductType(data) {
   // Final length control (3-4 words)
   return finalTitle.split(' ').slice(0, 4).join(' ');
 }
-
+app.all('/', (req, res) => {
+    console.log(`Health check received: ${req.method}`);
+    res.status(200).send('OK');
+});
+/*
 app.get('/', (req, res) => {
     res.status(200).send('OK')
 })
-
+*/
 app.get('/products', (req, res) => {
     res.json({message: "No products yet"})
     console.log('to be implemented later')
