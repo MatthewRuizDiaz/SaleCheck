@@ -158,7 +158,11 @@ function extractProductType(data) {
   return finalTitle.split(' ').slice(0, 4).join(' ');
 }
 
-app.all('/', (req, res) => {
+app.head('/', (req, res) => {
+  res.status(200).end();
+});
+
+app.get('/', (req, res) => {
   res.status(200).send('OK');
 });
 
