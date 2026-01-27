@@ -158,6 +158,10 @@ function extractProductType(data) {
   return finalTitle.split(' ').slice(0, 4).join(' ');
 }
 
+app.head('/healthz', (req, res) => {
+  res.status(200).end();
+});
+
 app.get('/healthz', (req, res) => {
   res.status(200).end();
 });
