@@ -158,7 +158,7 @@ function extractProductType(data) {
   return finalTitle.split(' ').slice(0, 4).join(' ');
 }
 
-app.get('/', (req, res) => {
+app.all('/', (req, res) => {
   res.status(200).send('OK');
 });
 
