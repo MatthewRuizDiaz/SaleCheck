@@ -1,18 +1,24 @@
-const express = require('express')
-const axios = require('axios')
-require('dotenv').config()
+const express = require('express');
+const axios = require('axios');
+require('dotenv').config();
+
+const apiHost = process.env.RAPIDAPI_HOST;
+const apiKey = process.env.RAPIDAPI_KEY;
+const affiliateID = 'salecheck-20';
 
 // DEBUG: Log environment check
 console.log('Environment check:', {
-  hasHost: !!process.env.RAPIDAPI_HOST,
-  hasKey: !!process.env.RAPIDAPI_KEY,
-  port: process.env.PORT || 3000
-})
+  hasHost: !!apiHost,
+  hasKey: !!apiKey,
+  port: process.env.PORT || 3000,
+});
 
-const app = express()
-const apiHost = process.env.RAPIDAPI_HOST
-const apiKey = process.env.RAPIDAPI_KEY
-const affiliateID = 'salecheck-20'
+console.log('API CONFIG CHECK:', {
+  host: !!apiHost,
+  key: !!apiKey,
+});
+
+const app = express();
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -151,15 +157,11 @@ function extractProductType(data) {
   // Final length control (3-4 words)
   return finalTitle.split(' ').slice(0, 4).join(' ');
 }
-app.all('/', (req, res) => {
-    console.log(`Health check received: ${req.method}`);
-    res.status(200).send('OK');
-});
-/*
+
 app.get('/', (req, res) => {
-    res.status(200).send('OK')
-})
-*/
+  res.status(200).send('OK');
+});
+
 app.get('/products', (req, res) => {
     res.json({message: "No products yet"})
     console.log('to be implemented later')
@@ -218,7 +220,6 @@ app.get('/products/asin/:asin', async (req, res) => {
 })
 
 const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`listening on port ${PORT}`)
-})
+app.listen(PORT, () => {
+    console.log(`Server live on port ${PORT}`);
+});
